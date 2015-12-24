@@ -315,6 +315,7 @@ definition and the struct definition.
 
  */
 func lexFuncParams(l *lexer) stateFn {
+	// TODO: Look for open parenthesis and close parenthesis first
 	acceptUntil(l, leftDelim + "\n")
 	if (l.peek() != '{') {
 		return l.errorf("Missing opening bracket for function.")
@@ -329,6 +330,7 @@ func lexFuncBody(l *lexer) stateFn {
 	// first find a left delim
 	var r rune
 
+	// TODO: Skip comments and quoted strings
 	for r = l.next(); r != '{' && r != eof; r = l.next() {}
 	var parenDepth = 1
 	for parenDepth > 0 {
