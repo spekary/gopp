@@ -1,4 +1,4 @@
-package blah
+package test
 
 import (
 	"github.com/spekary/gopp/gopp"

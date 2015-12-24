@@ -26,8 +26,24 @@ Syntax:
 
 A class definition begins with the word "class", followed by a class name, the required word "extends" and a superclass.
 
-To create a base class, you should extend the "Base" class. The Base class is a struct and interface combination that
-implement basic object primitives that are often found in object oriented languages.
+To create a base class, you should extend the "gopp.Base" class. The Base class is a struct and interface combination that
+implement basic object functions that are often found in object oriented languages.
+
+Within a class, declare members the same way you would declare a member of a go struct, with a name followed by a type.
+
+For example:
+	member1 string
+	member2 int
+
+Then declare methods just like declaring functions in go. Do not include the target selector, that will be added automatically.
+
+Within a method, use the 'this' keyword to refer to the current object. Whenever you refer to a a member of the object, the
+.gpp pre-processor will get the member of the struct. If you call a method in the object, the preprocessor will call a
+method on the interface to the object, so that if any subclasses override that method, the subclass method will be called.
+The overall effect is similar to any other object oriented language, and you really don't need to worry about the details,
+except of course when debugging, since you will be debugging the go code and not the gpp code.
+
+See the files in the test directory for more examples of what you can do, and the results.
 
  */
 

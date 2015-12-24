@@ -1,0 +1,41 @@
+package test
+
+import (
+	"github.com/spekary/gopp/gopp"
+)
+
+
+class Thing extends gopp.Base {
+
+	func WhoAmI() string {
+		return this.Type() + ":" + this.Name()
+	}
+
+	func Type() string {
+		return "Uknown"
+	}
+
+	func Name() string {
+		return "No Name"
+	}
+
+}
+
+class Person extends Thing {
+	first string
+	last string
+
+	func Construct_(first string, last string) {
+		parent::Construct_()
+		this.first = first
+		this.last = last
+	}
+
+	func Type() string {
+		return "Person"
+	}
+
+	func Name() string {
+		return this.first + " " + this.last
+	}
+}

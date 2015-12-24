@@ -196,6 +196,8 @@ func (c *classDef) String() string {
 
 	out += c.outNew()
 	out += c.outFuncs()
+	out += c.outReflect()
+
 	return out
 }
 
@@ -257,6 +259,27 @@ func (c *classDef) outFuncs() string {
 
 	return out
 }
+
+func (c *classDef) outReflect() string {
+	parts := strings.Split(c.extends, ".")
+	extendsName := parts[len(parts)-1]
+
+	out :=
+`
+func (this *` + c.name + `_) IsA(className string) bool {
+	if (className == "` + c.name + `") {
+		return true
+	}
+	return this.` + extendsName + `_.IsA(className)
+}
+
+func (this *` + c.name + `_) Class() string {
+	return "` + c.name + `"
+}
+`
+	return out
+}
+
 
 
 /**
@@ -320,10 +343,13 @@ mainfor:
 }
 
 func convertBody(in string, c *classDef) string {
+	parts := strings.Split(c.extends, ".")
+	extendsName := parts[len(parts)-1]	// get last item
+
 	//_ = "breakpoint"
 	rFunc, _ := regexp.Compile("this\\.([a-zA-Z0-9_]+) ?\\(")
 	out := rFunc.ReplaceAllString(in, "this.I_().(" + c.name + ").$1(")
-	out = strings.Replace(out, "parent::", "this." + c.extends + "_.", -1)
+	out = strings.Replace(out, "parent::", "this." + extendsName + "_.", -1)
 	return out
 }
 
