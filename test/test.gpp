@@ -1,0 +1,57 @@
+package blah
+
+import (
+	"github.com/spekary/gopp/gopp"
+)
+
+
+/**
+Some comments
+*/
+class Test extends gopp.Base {
+	me int
+
+	func Construct_(me int) {
+		this.me = me
+	}
+
+	/**
+	This does this and that
+	 */
+	func My() {
+		this.me = 4
+		this.My2()
+	}
+
+	func My2() {
+		// do nothing
+	}
+
+	func My3() {/*
+		Don't do anything
+	*/}
+}
+
+class A extends Test {
+	func Oh() {
+		parent::My()
+		this.Test_.My3()
+	}
+
+}
+
+/*
+class Test2<T> extends gopp.Base {
+	me <T>
+
+	func Construct_(me <T>) {
+		this.me = me
+	}
+
+	func GetMe() <T> {
+		return this.me
+	}
+}
+
+a := NewTest2<string>("blah")
+*/
