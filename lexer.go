@@ -65,11 +65,13 @@ func (i item) String() string {
 
 	}
 
+	/*
 	if len(i.val) > 10 {
 		return fmt.Sprintf("%.10q...", i.val)
 	}
+	*/
 
-	return fmt.Sprintf("%q", i.val)
+	return fmt.Sprintf("%v: %q\n", i.typ, i.val)
 }
 
 type lexer struct {
@@ -116,8 +118,11 @@ func lex(input string) *lexer {
 }
 
 func (l *lexer) emit(t itemType) {
-	l.items <- item{t, l.input[l.start:l.pos]}
+	item := item{t, l.input[l.start:l.pos]}
+	l.items <- item
 	l.start = l.pos
+	fmt.Printf("%v", item)
+
 }
 
 func lexText(l *lexer) stateFn {
@@ -312,14 +317,37 @@ func lexFunc(l *lexer) stateFn {
 /**
 Lex a function parameter list, including the return parameters. We need this because it will become part of the interface
 definition and the struct definition.
-
  */
 func lexFuncParams(l *lexer) stateFn {
-	// TODO: Look for open parenthesis and close parenthesis first
-	acceptUntil(l, leftDelim + "\n")
-	if (l.peek() != '{') {
-		return l.errorf("Missing opening bracket for function.")
+	_ = "breakpoint"
+	if l.peek() != '(' {
+		return l.errorf("Expected opening parenthesis for function parameter list.")
 	}
+
+	acceptUntil(l, ")")
+	l.next()
+	l.acceptSpace()
+
+	if (l.peek() == '(') {
+		// found return params in parens
+		acceptUntil(l, ")")
+		l.next()
+	} else if l.peek() == '{' {
+		// do nothing, found start of body
+	} else {
+		// found a return param, which might be an interface or annonymous struct declaration
+		word := l.acceptIdentifier()
+		if (word == "struct" || word == "interface") {
+			acceptUntil(l, rightDelim)
+			l.acceptSpace()
+			if l.peek() != '{' {
+				return l.errorf("Missing opening bracket for function.")
+			}
+		}
+
+	}
+
+
 	l.emit(itemFuncParams)
 	return lexFuncBody
 }
@@ -406,6 +434,17 @@ func acceptUntil(l *lexer, terminators string) {
 	for strings.IndexRune(terminators, l.next()) < 0 {
 	}
 	l.backup()
+}
+
+func (l *lexer) acceptIdentifier() string {
+	startPos := l.pos
+	for {
+		r := l.next();
+		if !isIdChar(r) {
+			l.backup()
+			return l.input[startPos:l.pos]
+		}
+	}
 }
 
 func  (l *lexer) acceptSpace() {

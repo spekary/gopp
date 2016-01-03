@@ -38,4 +38,9 @@ class Person extends Thing {
 	func Name() string {
 		return this.first + " " + this.last
 	}
+
+	func ComplexReturn(data interface{}) (string, interface{}) {
+		return this.first + " " + this.last, 1
+	}
+
 }
