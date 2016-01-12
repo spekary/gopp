@@ -37,17 +37,17 @@ class Person extends Thing {
 	first string
 	last string
 
-	func Construct_(first string, last string) {
+	override func Construct_(first string, last string) {
 		parent::Construct_()
 		this.first = first
 		this.last = last
 	}
 
-	func Type string {
+	override func Type string {
 		return "Person"
 	}
 
-	func Name string {
+	override func Name string {
 		return this.first + " " + this.last
 	}
 }
@@ -104,9 +104,6 @@ func (this *Thing_) Class() string {
 
 type Person interface {
 	Thing
-	Construct_ (first string, last string)
-	Type () string
-	Name () string
 }
 
 type Person_ struct {

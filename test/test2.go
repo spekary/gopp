@@ -60,6 +60,7 @@ type Person interface {
 	Construct_ (first string, last string) 
 	Type () string 
 	Name () string 
+	ComplexReturn (data interface{}) (string, interface{}) 
 }
 
 type Person_ struct {
@@ -90,6 +91,10 @@ func (this *Person_) Type() string {
 
 func (this *Person_) Name() string {
 		return this.first + " " + this.last
+	}
+
+func (this *Person_) ComplexReturn(data interface{}) (string, interface{}) {
+		return this.first + " " + this.last, 1
 	}
 
 

@@ -18,6 +18,7 @@ type funcDef struct {
 	params string
 	body string
 	comments string
+	isOverride bool
 }
 
 type classDef struct {
@@ -117,6 +118,8 @@ func parseClass(className string, l *lexer, comment string) fmt.Stringer {
 		return stringer("Error: left delimiter expected, got " + item.String())
 	}
 
+	var isOverride bool
+
 	// TODO: put comment after leftDelim into tree somehow
 forloop:
 	for {
@@ -131,8 +134,11 @@ forloop:
 		case itemMember:
 			class.members = append(class.members, memberDef{item.val, curComment})
 			curComment = ""
+		case itemOverride:
+			isOverride = true
 		case itemFunc:
 			f,err := parseFunc(item.val, l, curComment)
+			f.isOverride = isOverride
 			if (err != "") {
 				return stringer(err)
 			}
@@ -140,8 +146,10 @@ forloop:
 			if (item.val == "Construct_") {
 				// The constructor
 				class.constructorParams = f.params
+				f.isOverride = true	// constructor always overrides. This means base class MUST have a Construct_ function.
 			}
 			curComment = ""
+			isOverride = false
 		case itemRightDelim:
 			break forloop
 		}
@@ -164,7 +172,7 @@ func parseFunc(name string, l *lexer, comment string) (f funcDef, e string) {
 		return
 	}
 
-	f = funcDef{name, params.val, body.val, comment}
+	f = funcDef{name, params.val, body.val, comment, false}
 	return
 }
 
@@ -178,7 +186,9 @@ func (c *classDef) String() string {
 	out = "type " + c.name + " interface {\n"
 	out += "\t" + c.extends + "\n"
 	for _,f := range c.funcs {
-		out += "\t" + f.name + " " + f.params + "\n"
+		if !f.isOverride {
+			out += "\t" + f.name + " " + f.params + "\n"
+		}
 	}
 	out += "}\n\n"
 

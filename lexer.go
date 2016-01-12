@@ -21,6 +21,7 @@ type Pos int
 // reserved words and other tokens we care about
 const (
 	tokFunc = "func"
+	tokOverride = "override"
 	tokClass = "class"
 	tokExtends = "extends"
 	tokPackage = "package"
@@ -44,6 +45,7 @@ const (
 	itemOpenBrace
 	itemCloseBrace
 	itemFunc
+	itemOverride
 	itemText
 	itemLeftDelim
 	itemRightDelim
@@ -284,6 +286,10 @@ func lexClassBody(l *lexer) stateFn {
 		return lexFunc
 	}
 
+	if strings.HasPrefix(l.input[l.pos:], tokOverride + " ") {
+		return lexOverride
+	}
+
 	if strings.HasPrefix(l.input[l.pos:], leftComment) {
 		return lexComment(l, lexClassBody)
 	}
@@ -301,6 +307,23 @@ func lexClassBody(l *lexer) stateFn {
 func lexClassClose(l *lexer) stateFn {
 	lexRightDelim(l)
 	return lexText
+}
+
+/**
+Lex the override keyword. We know the "override" keyword is at the beginning of the stream.
+ */
+func lexOverride(l *lexer) stateFn {
+	l.pos += len (tokOverride)
+	l.start = l.pos
+	l.ignoreSpace()
+
+	if !strings.HasPrefix(l.input[l.pos:], tokFunc + " ") {
+		return l.errorf("Missing 'func' keyword after override")
+	}
+
+	l.emit(itemOverride)
+
+	return lexFunc
 }
 
 
