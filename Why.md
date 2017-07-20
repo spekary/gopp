@@ -1,7 +1,7 @@
 # Implementing a simple CLASS - Why GOPP
 
 The GO developers have asked for real world examples of large scale codebases running into roadblocks using GO. This is an attempt to explain
-why I created GOPP, and the problem it is trying to solve. This isn't an example of a running GO code base, but more a description of
+why I created GOPP(https://github.com/spekary/gopp/), and the problem it is trying to solve. This isn't an example of a running GO code base, but more a description of
 one way to make GO easier to do what I have attempted to do and struggled with in a large code base.
 
 ## Porting code to GO
