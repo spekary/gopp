@@ -1,5 +1,11 @@
 # gopp
-A go preprocessor that adds some object-oriented shortcuts to the go language.
+A go preprocessor that adds lightweight object-oriented shortcuts to the go language.
+
+## Install
+
+```shell
+go get github.com/spekary/gopp/gopp
+```
 
 ## About Gopp
 The go authors separated the interface of a typical object from its implementation. This is great for some applications, but
@@ -37,8 +43,8 @@ class Person extends Thing {
 	first string
 	last string
 
-	override func Construct_(first string, last string) {
-		parent::Construct_()
+	func Construct(first string, last string) {
+		parent::Construct()
 		this.first = first
 		this.last = last
 	}
@@ -55,103 +61,103 @@ class Person extends Thing {
 
 becomes this in go code:
 
-```
-type Thing interface {
+```go
+type ThingI interface {
+	gopp.BaseI
+
+	WhoAmI() string
+	Type() string
+	Name() string
+}
+
+type Thing struct {
 	gopp.Base
-	WhoAmI () string
-	Type () string
-	Name () string
 }
 
-type Thing_ struct {
-	gopp.Base_
+// New Thing creates a new Thing object and returns its matching interface
+func NewThing() ThingI {
+	t_ := Thing{}
+	t_.Init(&t_)
+	t_.Construct()
+	return t_.I().(ThingI)
 }
 
-/**
-NewThing creates a new Thing object.
-*/
-func NewThing() Thing {
-	this := Thing_{}
-	this.Init_(&this)
-	this.Construct_()
-	return this.I_().(Thing)
+func (t_ *Thing) WhoAmI() string {
+	return t_.I().(ThingI).Type() + ":" + t_.I().(ThingI).Name()
 }
 
-func (this *Thing_) WhoAmI() string {
-		return this.I_().(Thing).Type() + ":" + this.I_().(Thing).Name()
-	}
+func (t_ *Thing) Type() string {
+	return "Uknown"
+}
 
-func (this *Thing_) Type() string {
-		return "Uknown"
-	}
+func (t_ *Thing) Name() string {
+	return "No Name"
+}
 
-func (this *Thing_) Name() string {
-		return "No Name"
-	}
-
-
-func (this *Thing_) IsA(className string) bool {
-	if (className == "Thing") {
+func (t_ *Thing) IsA(className string) bool {
+	if className == "Thing" {
 		return true
 	}
-	return this.Base_.IsA(className)
+	return t_.Base.IsA(className)
 }
 
-func (this *Thing_) Class() string {
+func (t_ *Thing) Class() string {
 	return "Thing"
 }
 
+type PersonI interface {
+	ThingI
 
-type Person interface {
+	ComplexReturn(data interface{}) (string, interface{})
+}
+
+type Person struct {
 	Thing
-}
-
-type Person_ struct {
-	Thing_
 	first string
-	last string
+	last  string
 }
 
-/**
-NewPerson creates a new Person object.
-*/
-func NewPerson(first string, last string)  Person {
-	this := Person_{}
-	this.Init_(&this)
-	this.Construct_(first,last)
-	return this.I_().(Person)
+// New Person creates a new Person object and returns its matching interface
+func NewPerson(first string, last string) PersonI {
+	p_ := Person{}
+	p_.Init(&p_)
+	p_.Construct(first, last)
+	return p_.I().(PersonI)
 }
 
-func (this *Person_) Construct_(first string, last string) {
-		this.Thing_.Construct_()
-		this.first = first
-		this.last = last
-	}
+func (p_ *Person) Construct(first string, last string) {
+	p_.Thing.Construct()
+	p_.first = first
+	p_.last = last
+}
 
-func (this *Person_) Type() string {
-		return "Person"
-	}
+func (p_ *Person) Type() string {
+	return "Person"
+}
 
-func (this *Person_) Name() string {
-		return this.first + " " + this.last
-	}
+func (p_ *Person) Name() string {
+	return p_.first + " " + p_.last
+}
 
+func (p_ *Person) ComplexReturn(data interface{}) (string, interface{}) {
+	return p_.first + " " + p_.last, 1
+}
 
-func (this *Person_) IsA(className string) bool {
-	if (className == "Person") {
+func (p_ *Person) IsA(className string) bool {
+	if className == "Person" {
 		return true
 	}
-	return this.Thing_.IsA(className)
+	return p_.Thing.IsA(className)
 }
 
-func (this *Person_) Class() string {
+func (p_ *Person) Class() string {
 	return "Person"
 }
 ```
 
 With the expanded go code, you can do the following:
 
-To create a new Person object, just call **NewPerson**. You will be working with the Person interface from then on,
+To create a new Person object, just call **NewPerson**. You will be working with the PersonI interface from then on,
 and you do not need to worry about implementation details of the object.
 
 Once you have a Person object, you can call WhoAmI(), and it will do the right thing and call into the Person's Type()
@@ -171,8 +177,5 @@ Either specify the specific files you want to gopp, or the -all flag will grab a
 
 ## Notes From the Author
 
-This project is currently in its infancy. My hope is that you will find this useful, and also contribute to this project,
-including ideas and suggestions, as well as code. At this stage of the project, everything is on the table,
-including naming conventions. There are so many directions this could go. See
-the open issues for ideas on how to contribute. Also, little attempt has been made to inline document the code, so feel
-free to add documentation as you contribute.
+While I realize this approach is going to be frowned upon by the go "community", object-oriented
+patterns actually do have a purpose in the world. 

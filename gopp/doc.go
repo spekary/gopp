@@ -1,6 +1,10 @@
 /**
 gopp
 
+Installation:
+
+go get github.com/spekary/gopp/gopp
+
 Gopp some lightweight object oriented features to go code that allow you to structure your code using
 inheritance, and use virtual functions.
 
