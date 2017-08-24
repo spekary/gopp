@@ -1,26 +1,25 @@
-package main_test
+package main
 
 import (
 	"testing"
-	"github.com/spekary/gopp/main"
 )
 
 func TestText(t *testing.T) {
 	s :=
-`
+		`
 /**
 Test comment
  */
 `
-	sNew := main.ProcessString(s);
-	if (sNew != s) {
+	sNew := ProcessString(s)
+	if sNew != s {
 		t.Error("Comment not passed through: " + sNew)
 	}
 }
 
 func TestText2(t *testing.T) {
 	s :=
-`
+		`
 /**
 Test comment
  */
@@ -29,15 +28,15 @@ Test comment
  	blah
  }
 `
-	sNew := main.ProcessString(s);
-	if (sNew != s) {
+	sNew := ProcessString(s)
+	if sNew != s {
 		t.Error("Text not passed through: " + sNew)
 	}
 }
 
 func TestSimple(t *testing.T) {
 	s :=
-`
+		`
 class Test extends Base {
 	testMember string
 
@@ -47,8 +46,8 @@ class Test extends Base {
 	}
 }
 `
-sExpected :=
-`
+	sExpected :=
+		`
 type Test interface {
 	Base
 }
@@ -66,23 +65,21 @@ func NewTest() Test {
 	return i
 }
 `
-	sNew := main.ProcessString(s);
-	if (sNew != sExpected) {
+	sNew := ProcessString(s)
+	if sNew != sExpected {
 		t.Error("struct with member not created: " + sNew)
 	}
 }
 
-
-
 func TestJustMember(t *testing.T) {
 	s :=
-`
+		`
 class Test extends Base {
 	testMember string
 }
 `
 	sExpected :=
-`
+		`
 type Test interface {
 	Base
 }
@@ -92,9 +89,8 @@ type _Test struct {
 	testMember string
 }
 `
-	sNew := main.ProcessString(s);
-	if (sNew != sExpected) {
+	sNew := ProcessString(s)
+	if sNew != sExpected {
 		t.Error("struct with member not created: " + sNew)
 	}
 }
-

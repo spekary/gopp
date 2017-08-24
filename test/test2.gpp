@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/spekary/gopp/gopp"
+	"github.com/spekary/gopp"
 )
 
 
@@ -25,17 +25,17 @@ class Person extends Thing {
 	first string
 	last string
 
-	func Construct_(first string, last string) {
-		parent::Construct_()
+	func Construct(first string, last string) {
+		parent::Construct()
 		this.first = first
 		this.last = last
 	}
 
-	func Type() string {
+	override func Type() string {
 		return "Person"
 	}
 
-	func Name() string {
+	override func Name() string {
 		return this.first + " " + this.last
 	}
 

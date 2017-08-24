@@ -3,30 +3,29 @@ package main
 import (
 	"fmt"
 	"strings"
-	"unicode/utf8"
 	"unicode"
+	"unicode/utf8"
 )
+
 const eof = -1
 const (
 	leftDelim    = "{"
 	rightDelim   = "}"
 	leftComment  = "/*"
 	rightComment = "*/"
-	lineComment = "//"
+	lineComment  = "//"
 )
 
 type Pos int
 
-
 // reserved words and other tokens we care about
 const (
-	tokFunc = "func"
+	tokFunc     = "func"
 	tokOverride = "override"
-	tokClass = "class"
-	tokExtends = "extends"
-	tokPackage = "package"
+	tokClass    = "class"
+	tokExtends  = "extends"
+	tokPackage  = "package"
 )
-
 
 //go:generate stringer -type=itemType
 type itemType int
@@ -68,38 +67,36 @@ func (i item) String() string {
 	}
 
 	/*
-	if len(i.val) > 10 {
-		return fmt.Sprintf("%.10q...", i.val)
-	}
+		if len(i.val) > 10 {
+			return fmt.Sprintf("%.10q...", i.val)
+		}
 	*/
 
 	return fmt.Sprintf("%v: %q\n", i.typ, i.val)
 }
 
 type lexer struct {
-	input string // string being scanned
-	start int// start position of item
-	pos int // current position
-	lastPos int // last position of item read
-	width int // width of last rune
-	items chan item // channel of scanned items
+	input   string    // string being scanned
+	start   int       // start position of item
+	pos     int       // current position
+	lastPos int       // last position of item read
+	width   int       // width of last rune
+	items   chan item // channel of scanned items
 }
 
-
 type stateFn func(*lexer) stateFn
-
 
 func (l *lexer) run() {
 	for state := lexText; state != nil; {
 		state = state(l)
 	}
-	close (l.items)
+	close(l.items)
 }
 
 // nextItem returns the next item from the input.
 // Called by the parser, not in the lexing goroutine.
 func (l *lexer) nextItem() item {
-	item,ok := <-l.items
+	item, ok := <-l.items
 
 	if !ok {
 		panic("Read past end of file")
@@ -123,24 +120,24 @@ func (l *lexer) emit(t itemType) {
 	item := item{t, l.input[l.start:l.pos]}
 	l.items <- item
 	l.start = l.pos
-	fmt.Printf("%v", item)
+	//fmt.Printf("%v", item)
 
 }
 
 func lexText(l *lexer) stateFn {
 	for {
-		l.acceptSpace();
-		if strings.HasPrefix(l.input[l.pos:], tokClass + " ") {
-			if (l.pos > l.start) {
-				l.emit(itemText)	// emit text already read so far for straight output
+		l.acceptSpace()
+		if strings.HasPrefix(l.input[l.pos:], tokClass+" ") {
+			if l.pos > l.start {
+				l.emit(itemText) // emit text already read so far for straight output
 			}
 			return lexClass
-		} else  if strings.HasPrefix(l.input[l.pos:], leftComment) {
-			if (l.pos > l.start) {
-				l.emit(itemText)	// emit text already read so far for straight output
+		} else if strings.HasPrefix(l.input[l.pos:], leftComment) {
+			if l.pos > l.start {
+				l.emit(itemText) // emit text already read so far for straight output
 			}
 			return lexComment(l, lexText)
-		} else  if strings.HasPrefix(l.input[l.pos:], tokPackage) {
+		} else if strings.HasPrefix(l.input[l.pos:], tokPackage) {
 			return lexIdentifier(l, itemPackage, lexText)
 		}
 
@@ -191,7 +188,7 @@ func (l *lexer) next() rune {
 func (l *lexer) nextLine() {
 	for {
 		r := l.next()
-		if (r == '\n' || r == eof) {
+		if r == '\n' || r == eof {
 			return
 		}
 	}
@@ -208,7 +205,7 @@ func (l *lexer) ignore() {
 func (l *lexer) ignoreSpace() {
 	for {
 		r := l.next()
-		switch  {
+		switch {
 		case r == eof:
 			return
 		case isSpace(r):
@@ -261,20 +258,18 @@ func lexBodyOpen(l *lexer) stateFn {
 	return lexClassBody
 }
 
-func lexLeftDelim(l *lexer)  {
+func lexLeftDelim(l *lexer) {
 	l.ignoreSpace()
 	l.pos += int(len(leftDelim))
 	l.emit(itemLeftDelim)
 	//l.parenDepth ++
 }
 
-func lexRightDelim(l *lexer)  {
+func lexRightDelim(l *lexer) {
 	l.pos += int(len(rightDelim))
 	l.emit(itemRightDelim)
 	//l.parenDepth --
 }
-
-
 
 func lexClassBody(l *lexer) stateFn {
 	l.ignoreSpace()
@@ -282,11 +277,11 @@ func lexClassBody(l *lexer) stateFn {
 		return lexClassClose
 	}
 
-	if strings.HasPrefix(l.input[l.pos:], tokFunc + " ") {
+	if strings.HasPrefix(l.input[l.pos:], tokFunc+" ") {
 		return lexFunc
 	}
 
-	if strings.HasPrefix(l.input[l.pos:], tokOverride + " ") {
+	if strings.HasPrefix(l.input[l.pos:], tokOverride+" ") {
 		return lexOverride
 	}
 
@@ -300,7 +295,6 @@ func lexClassBody(l *lexer) stateFn {
 		return lexClassBody
 	}
 
-
 	return lexMember
 }
 
@@ -311,13 +305,13 @@ func lexClassClose(l *lexer) stateFn {
 
 /**
 Lex the override keyword. We know the "override" keyword is at the beginning of the stream.
- */
+*/
 func lexOverride(l *lexer) stateFn {
-	l.pos += len (tokOverride)
+	l.pos += len(tokOverride)
 	l.start = l.pos
 	l.ignoreSpace()
 
-	if !strings.HasPrefix(l.input[l.pos:], tokFunc + " ") {
+	if !strings.HasPrefix(l.input[l.pos:], tokFunc+" ") {
 		return l.errorf("Missing 'func' keyword after override")
 	}
 
@@ -326,12 +320,11 @@ func lexOverride(l *lexer) stateFn {
 	return lexFunc
 }
 
-
 /**
 Lex a function. We know the "func" keyword is at the beginning of the stream.
- */
+*/
 func lexFunc(l *lexer) stateFn {
-	l.pos += len (tokFunc)
+	l.pos += len(tokFunc)
 	l.start = l.pos
 	l.ignoreSpace()
 	return lexIdentifier(l, itemFunc, lexFuncParams)
@@ -340,7 +333,7 @@ func lexFunc(l *lexer) stateFn {
 /**
 Lex a function parameter list, including the return parameters. We need this because it will become part of the interface
 definition and the struct definition.
- */
+*/
 func lexFuncParams(l *lexer) stateFn {
 	_ = "breakpoint"
 	if l.peek() != '(' {
@@ -351,7 +344,7 @@ func lexFuncParams(l *lexer) stateFn {
 	l.next()
 	l.acceptSpace()
 
-	if (l.peek() == '(') {
+	if l.peek() == '(' {
 		// found return params in parens
 		acceptUntil(l, ")")
 		l.next()
@@ -360,7 +353,7 @@ func lexFuncParams(l *lexer) stateFn {
 	} else {
 		// found a return param, which might be an interface or annonymous struct declaration
 		word := l.acceptIdentifier()
-		if (word == "struct" || word == "interface") {
+		if word == "struct" || word == "interface" {
 			acceptUntil(l, rightDelim)
 			l.acceptSpace()
 			if l.peek() != '{' {
@@ -369,7 +362,6 @@ func lexFuncParams(l *lexer) stateFn {
 		}
 
 	}
-
 
 	l.emit(itemFuncParams)
 	return lexFuncBody
@@ -382,16 +374,17 @@ func lexFuncBody(l *lexer) stateFn {
 	var r rune
 
 	// TODO: Skip comments and quoted strings
-	for r = l.next(); r != '{' && r != eof; r = l.next() {}
+	for r = l.next(); r != '{' && r != eof; r = l.next() {
+	}
 	var parenDepth = 1
 	for parenDepth > 0 {
 		r = l.next()
-		if (r == '{') {
-			parenDepth ++
-		} else if (r == '}') {
-			parenDepth --
-		} else if (r == eof) {
-			return l.errorf ("Unexpected EOF. Function body is still open.")
+		if r == '{' {
+			parenDepth++
+		} else if r == '}' {
+			parenDepth--
+		} else if r == eof {
+			return l.errorf("Unexpected EOF. Function body is still open.")
 		}
 	}
 	l.emit(itemFuncBody)
@@ -400,8 +393,8 @@ func lexFuncBody(l *lexer) stateFn {
 
 func lexMember(l *lexer) stateFn {
 	l.nextLine()
-	if (l.start + 1 < l.pos) {
-		l.emit(itemMember);
+	if l.start+1 < l.pos {
+		l.emit(itemMember)
 	} else {
 		l.ignore()
 	}
@@ -462,7 +455,7 @@ func acceptUntil(l *lexer, terminators string) {
 func (l *lexer) acceptIdentifier() string {
 	startPos := l.pos
 	for {
-		r := l.next();
+		r := l.next()
 		if !isIdChar(r) {
 			l.backup()
 			return l.input[startPos:l.pos]
@@ -470,10 +463,8 @@ func (l *lexer) acceptIdentifier() string {
 	}
 }
 
-func  (l *lexer) acceptSpace() {
+func (l *lexer) acceptSpace() {
 	for isSpace(l.next()) {
 	}
 	l.backup()
 }
-
-

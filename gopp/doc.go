@@ -1,12 +1,13 @@
 /**
 gopp
 
-Gopp or go-plus-plus, is an attempt to make object oriented features of go, like virtual functions, more accessible.
+Gopp some lightweight object oriented features to go code that allow you to structure your code using
+inheritance, and use virtual functions.
 
 It is currently structured as a pre-processor that can be run with go-generate, and that takes in a .gpp file and
 outputs standard .go code.
 
-The primary feature is a new keyword "class", that operates similarly to the "class" keyword in PHP, and begins the
+The primary feature is a new keyword "class", that operates similarly to the "class" keyword in other OO languages, and begins the
 definition of an object. This single object definition gets converted to both a struct and interface in standard go
 code such that you can do things like:
 
@@ -17,8 +18,10 @@ or
 this.member = 7
 
 and the resulting code will find the correct function or member of the struct and use it, including functions of subclasses.
-The result is the ability for programmers who are accustomed to writing object oriented code like PHP or C++ to work the way they like, and
+The result is the ability for programmers who are accustomed to writing object oriented code like Java, PHP or C++ to work the way they like, and
 not have to worry about all the implementation details of writing similar code in strict go.
+
+The effect is a very lightweight, bu
 
 Syntax:
 
@@ -43,5 +46,20 @@ except of course when debugging, since you will be debugging the go code and not
 
 See the files in the test directory for more examples of what you can do, and the results.
 
- */
+Special Key Words and Transformations:
+
+The Construct() function is an initializer like any other constructor. Call the parent constructor from within your constructor using:
+
+parent::Construct(<vars>)
+
+parent:: will always get substituted by the class after the "extends" keyword.
+
+IsA() and Class() functions are automatically added so you can test whether a particular object belongs to a class hierarchy
+or is a particular class without having to do type juggling or reflection.
+
+The resulting struct name is the same as the class name, and the interface name is the class name followed by "I". So,
+a Duck interface is DuckI (pronounced Duckee, as in "duck like"). Generally you will work with the interface when
+creating these objects from standard Go code.
+
+*/
 package main

@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/spekary/gopp/gopp"
+	"github.com/spekary/gopp"
 )
 
 
@@ -11,7 +11,7 @@ Some comments
 class Test extends gopp.Base {
 	me int
 
-	func Construct_(me int) {
+	func Construct(me int) {
 		this.me = me
 	}
 
@@ -33,9 +33,12 @@ class Test extends gopp.Base {
 }
 
 class A extends Test {
+	func Construct() {
+		parent::Construct(1)
+	}
 	func Oh() {
 		parent::My()
-		this.Test_.My3()
+		this.Test.My3()
 	}
 
 }

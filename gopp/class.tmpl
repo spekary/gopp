@@ -1,0 +1,43 @@
+{{.Commment}}
+type {{.Name}}I interface {
+	{{.Parent}}I
+	Construct{{.Params}}
+{{range .Methods}}
+	{{.Name}}{{.Params}}
+{{end}}
+}
+
+type {{.Name}} struct {
+	{{.Parent}}
+{{range .Members}}
+	{{.Comment}}
+	{{.Name}}
+{{end}}
+}
+
+// New {{.Name}} creates a new {{.Name}} object and returns its matching interface
+func New{{.Name}} {{.Params}} {{.Name}}I {
+	{{.Receiver}} := {{.Name}}{}
+	{{.Receiver}}.Init(&{{.Receiver}})
+	{{.Receiver}}.Construct({{.VarList}})
+	return {{.Receiver}}.I().({{.Name}}I)
+}
+
+
+{{range .Methods}}
+func ({{$.Receiver}} *{{$.Name}}) {{.Name}} {{.Params}} {
+{{.Body}}
+}
+{{end}}
+
+func ({{$.Receiver}} *{{$.Name}}) IsA(className string) bool {
+	if className == "{{$.Name}}" {
+		return true
+	}
+	return this.{{$.Base}}.IsA(className)
+}
+
+func ({{$.Receiver}} *{{$.Name}}) Class() string {
+	return "{{$.Name}}"
+}
+
