@@ -53,6 +53,7 @@ type PersonI interface {
 	ThingI
 
 	ComplexReturn(data interface{}) (string, interface{})
+	PointerReturn() *Thing
 }
 
 type Person struct {
@@ -85,6 +86,11 @@ func (p_ *Person) Name() string {
 
 func (p_ *Person) ComplexReturn(data interface{}) (string, interface{}) {
 	return p_.first + " " + p_.last, 1
+}
+
+func (p_ *Person) PointerReturn() *Thing {
+	a := Thing{}
+	return a
 }
 
 func (p_ *Person) IsA(className string) bool {
