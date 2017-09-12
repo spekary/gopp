@@ -413,7 +413,13 @@ func isEndOfLine(r rune) bool {
 
 // isIdChar reports whether r is character that can be part of an identifier, specifically on a func definition line
 func isIdChar(r rune) bool {
-	return r == '.' || r == '_' || r == '*' || unicode.IsLetter(r) || unicode.IsDigit(r)
+	return r == '.' ||
+		r == '_' ||
+		r == '*' ||
+		r == '[' ||
+		r == ']' ||
+		unicode.IsLetter(r) ||
+		unicode.IsDigit(r)
 }
 
 // errorf returns an error token and terminates the scan by passing
