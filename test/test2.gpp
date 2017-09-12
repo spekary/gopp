@@ -45,6 +45,16 @@ class Person extends Thing {
 
 	func PointerReturn() *Thing {
 		a := Thing{}
+		return &a
+	}
+
+	func SliceReturn() []Thing {
+		a := []Thing{}
+		return a
+	}
+
+	func MapReturn() map[string]Thing {
+		a := make (map[string]Thing)
 		return a
 	}
 

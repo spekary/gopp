@@ -54,6 +54,8 @@ type PersonI interface {
 
 	ComplexReturn(data interface{}) (string, interface{})
 	PointerReturn() *Thing
+	SliceReturn() []Thing
+	MapReturn() map[string]Thing
 }
 
 type Person struct {
@@ -90,6 +92,16 @@ func (p_ *Person) ComplexReturn(data interface{}) (string, interface{}) {
 
 func (p_ *Person) PointerReturn() *Thing {
 	a := Thing{}
+	return &a
+}
+
+func (p_ *Person) SliceReturn() []Thing {
+	a := []Thing{}
+	return a
+}
+
+func (p_ *Person) MapReturn() map[string]Thing {
+	a := make(map[string]Thing)
 	return a
 }
 
