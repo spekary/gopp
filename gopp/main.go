@@ -10,7 +10,7 @@ import (
 	"os/exec"
 )
 
-func processFile(file string) {
+func processFile(file string, outDir string) {
 	buf, err := ioutil.ReadFile(file)
 
 	s := fmt.Sprintf("%s", buf)
@@ -36,6 +36,10 @@ func processFile(file string) {
 		file = file + ".go"
 	} else {
 		file = file[:i] + ".go"
+	}
+
+	if outDir != "" {
+		file = outDir + "/" + file
 	}
 	ioutil.WriteFile(file, []byte(s), os.ModePerm)
 
@@ -74,14 +78,17 @@ func execCommand(command string) {
 
 func main() {
 	var all bool
+	var outdir string
 	args := os.Args[1:]
 
 	if len(args) == 0 {
-		fmt.Println("Usage: gopp [file ...] [-all]")
+		fmt.Println("Usage: gopp  [-all] [-o outputDir] [file ...]")
 		fmt.Println("-all: process all .gpp files in the current directory")
+		fmt.Println("-o: specify the output directory")
 	}
 
-	flag.BoolVar(&all, "all", false, "a string var")
+	flag.BoolVar(&all, "all", false, "a boolean flag")
+	flag.StringVar(&outdir, "o", "", "a string var")
 
 	flag.Parse()
 	//var err error
@@ -94,11 +101,11 @@ func main() {
 			return
 		}
 		for _, file := range files {
-			processFile(file)
+			processFile(file, outdir)
 		}
 	} else {
 		for _, file := range args {
-			processFile(file)
+			processFile(file, outdir)
 		}
 	}
 }

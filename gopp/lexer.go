@@ -291,6 +291,7 @@ func lexClassBody(l *lexer) stateFn {
 
 	if strings.HasPrefix(l.input[l.pos:], lineComment) {
 		l.nextLine()
+		l.backup()
 		l.emit(itemLineComment)
 		return lexClassBody
 	}
@@ -335,7 +336,7 @@ Lex a function parameter list, including the return parameters. We need this bec
 definition and the struct definition.
 */
 func lexFuncParams(l *lexer) stateFn {
-	_ = "breakpoint"
+	l.ignoreSpace()
 	if l.peek() != '(' {
 		return l.errorf("Expected opening parenthesis for function parameter list.")
 	}

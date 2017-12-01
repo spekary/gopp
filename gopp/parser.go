@@ -421,6 +421,7 @@ func convertBody(in string, c *classDef) string {
 	out := rFunc.ReplaceAllString(in, c.Receiver+".I().("+c.Name+"I).$1(")
 	out = strings.Replace(out, "parent::", c.Receiver+"."+extendsName+".", -1)
 	out = strings.Replace(out, "this.", c.Receiver+".", -1)
+	out = strings.Replace(out, "this", c.Receiver+".I().("+c.Name+"I)", -1)
 	return out
 }
 
